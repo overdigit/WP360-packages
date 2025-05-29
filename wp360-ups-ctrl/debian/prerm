@@ -2,5 +2,5 @@
 
 if [[ "$1" = "configure" ]]
 then
-  dpkg-trigger update-initramfs
+  systemctl disable --now wp360-ups-ctrl
 fi

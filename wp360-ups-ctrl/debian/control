@@ -1,7 +1,14 @@
+Source: wp360-ups-ctrl
+Maintainer: Nicola Orlando <nicolaorlando24@gmail.com>
+Section: misc
+Priority: optional
+Standards-Version: 1.0.0
+Build-Depends: debhelper-compat (= 13)
+
 Package: wp360-ups-ctrl
 Version: 1.0.0
 Architecture: all
 Maintainer: Nicola Orlando <nicolaorlando24@gmail.com>
-Depends: bash
+Depends: ${shlibs:Depends}, ${misc:Depends}, bash
 Installed-Size: 1
 Description: Package containing a script and a service to turn off the system when signaled on pin 22.
