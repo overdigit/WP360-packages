@@ -1,0 +1,10 @@
+[Unit]
+Description=Automount removable media using udiskie
+After=multi-user.target
+
+[Service]
+User=user
+ExecStart=/usr/bin/udiskie -c /etc/udiskie.yml
+
+[Install]
+WantedBy=multi-user.target
