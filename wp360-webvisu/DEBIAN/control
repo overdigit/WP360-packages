@@ -4,4 +4,4 @@ Architecture: all
 Maintainer: Nicola Orlando <nicolaorlando24@gmail.com>
 Depends: systemd, chromium, sway
 Installed-Size: 1
-Description: Package containing a script and a service to turn off the system when signaled on pin 22.
+Description: Package containing various system configuration for automatic CODESYS web visualization on the device display.
