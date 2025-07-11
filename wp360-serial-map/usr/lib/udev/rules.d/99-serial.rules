@@ -1,0 +1,10 @@
+KERNEL=="ttyAMA3", SUBSYSTEM=="tty", KERNELS=="soc", SUBSYSTEMS=="platform", SYMLINK+="ttyWP360-2"
+KERNEL=="ttyAMA2", SUBSYSTEM=="tty", KERNELS=="axi", SUBSYSTEMS=="platform", SYMLINK+="ttyWP360-2"
+
+
+KERNEL=="ttyAMA4", SUBSYSTEM=="tty", KERNELS=="soc", SUBSYSTEMS=="platform", SYMLINK+="ttyWP360-3"
+KERNEL=="ttyAMA3", SUBSYSTEM=="tty", KERNELS=="axi", SUBSYSTEMS=="platform", SYMLINK+="ttyWP360-3"
+
+
+KERNEL=="ttyAMA5", SUBSYSTEM=="tty", KERNELS=="soc", SUBSYSTEMS=="platform", SYMLINK+="ttyWP360-4"
+KERNEL=="ttyAMA4", SUBSYSTEM=="tty", KERNELS=="axi", SUBSYSTEMS=="platform", SYMLINK+="ttyWP360-4"
