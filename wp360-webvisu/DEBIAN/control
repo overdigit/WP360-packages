@@ -1,5 +1,5 @@
 Package: wp360-webvisu
-Version: 1.0.0
+Version: 1.0.1
 Architecture: all
 Maintainer: Nicola Orlando <nicolaorlando24@gmail.com>
 Depends: systemd, chromium, sway
