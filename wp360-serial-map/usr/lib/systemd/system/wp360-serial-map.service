@@ -1,0 +1,10 @@
+[Unit]
+Description=Set serial ports to RS485 mode
+After=multi-user.target
+
+[Service]
+Type=OneShot
+ExecStart=/usr/lib/wp360-serial-map/wp360-set-rs485
+
+[Install]
+WantedBy=multi-user.target
