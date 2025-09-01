@@ -17,7 +17,10 @@ wp360-serial-map.deb:
 wp360-fan-ctrl.deb:
 	dpkg-deb --root-owner-group -b wp360-fan-ctrl
 
-all: wp360-ups-ctrl.deb wp360-webvisu.deb wp360-udiskie.deb wp360-serial-map.deb wp360-fan-ctrl.deb
+wp360-test-tools.deb:
+	dpkg-deb --root-owner-group -b wp360-test-tools
+
+all: wp360-ups-ctrl.deb wp360-webvisu.deb wp360-udiskie.deb wp360-serial-map.deb wp360-fan-ctrl.deb wp360-test-tools.deb
 
 clean:
-	-rm wp360-ups-ctrl.deb wp360-webvisu.deb wp360-udiskie.deb wp360-serial-map.deb wp360-fan-ctrl.deb
+	-rm wp360-ups-ctrl.deb wp360-webvisu.deb wp360-udiskie.deb wp360-serial-map.deb wp360-fan-ctrl.deb wp360-test-tools.deb

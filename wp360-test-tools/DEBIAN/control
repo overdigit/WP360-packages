@@ -1,0 +1,7 @@
+Package: wp360-test-tools
+Version: 1.0.0
+Architecture: arm64
+Maintainer: Nicola Orlando <nicolaorlando24@gmail.com>
+Depends: bash,screen,lua,htop
+Installed-Size: 1
+Description: Collection of test tools for the WP360 PLC.
