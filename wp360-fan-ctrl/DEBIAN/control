@@ -1,7 +1,7 @@
 Package: wp360-fan-ctrl
-Version: 1.0.0
+Version: 1.1.0
 Architecture: arm64
 Maintainer: Nicola Orlando <nicolaorlando24@gmail.com>
-Depends: bash
+Depends: gpiod
 Installed-Size: 1
 Description: Fan control daemon for the WP360 PLC.

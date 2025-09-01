@@ -10,11 +10,9 @@
 #define	CONSUMER "wp360-fan-governor"
 #endif
 
-//#define DEBUG 1
-
-#define TIME_SHIFT  11
+#define FAN_PERIOD  3600
 #if DEBUG
-#define TIME_SHIFT  6
+#define FAN_PERIOD  60
 #endif
 
 #define IOCTL_MBOX_PROPERTY _IOWR(100, 0, char *)
@@ -59,14 +57,16 @@ int main(void)
   struct gpiod_chip *chip;
   struct gpiod_line *line[2];
   int pin_fan[2] = {26, 27};
-  int ret, fan_low, fan_high, vcgencmd_err = 0;
-	float temp_deg;
+  int ret;
   unsigned char return_code = 0;
-  time_t unix_time;
+  time_t unix_time = time(NULL);
+  srand(unix_time);
+  int fan_low, fan_high, fan_time = rand() % FAN_PERIOD;
+  int vcgencmd_err = 0;
+  float temp_deg;
 #if DEBUG
   char log_path[256];
   char date_fmt[256];
-  unix_time = time(NULL);
   strftime(log_path, 256, "/var/log/wp360-fan-control/%Y%m%d-%H%M%S.log", gmtime(&unix_time));
   FILE *log = fopen(log_path,"w");
   if (!log)
@@ -103,8 +103,6 @@ int main(void)
 
   while (true)
   {
-    unix_time = time(NULL);
-
     temp_deg = vcgencmd_measure_temp(&vcgencmd_err);
     if (vcgencmd_err)
     {
@@ -115,16 +113,17 @@ int main(void)
     fan_low  = temp_deg > 65.0 || (fan_low  && temp_deg > 60.0);
     fan_high = temp_deg > 87.0 || (fan_high && temp_deg > 83.0);
 
-    int fan = (unix_time >> TIME_SHIFT) & 1;
-    gpiod_line_set_value(line[fan],  fan_low);
+    gpiod_line_set_value(line[fan_time <= FAN_PERIOD/2],  fan_low);
 #if DEBUG
+    unix_time = time(NULL);
     strftime(date_fmt, 256, "%Y-%m-%d %H:%M:%S", gmtime(&unix_time));
     fprintf(stderr, "%s, Temp: %3.1f, fan_low: %d, fan_high: %d, fan0: %d, fan1: %d\n", date_fmt, temp_deg, fan_low, fan_high, gpiod_line_get_value(line[0]), gpiod_line_get_value(line[1]));
     fprintf(log, "%s,%3.1f,%d,%d,%d,%d\n", date_fmt, temp_deg, fan_low, fan_high, gpiod_line_get_value(line[0]), gpiod_line_get_value(line[1]));
     fflush(log);
 #endif
     sleep(1);
-    gpiod_line_set_value(line[!fan], fan_high);
+    gpiod_line_set_value(line[fan_time > FAN_PERIOD/2], fan_high);
+    if (fan_low && !fan_high) {if(++fan_time > FAN_PERIOD-1) fan_time = 0;}
   }
 #if DEBUG
   fclose(log);
