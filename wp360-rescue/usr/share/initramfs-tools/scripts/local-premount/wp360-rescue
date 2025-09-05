@@ -1,0 +1,102 @@
+#!/bin/sh
+PREREQ=""
+prereqs()
+{
+  echo "$PREREQ"
+}
+case $1 in
+prereqs)
+  prereqs
+  exit 0
+;;
+esac
+
+. /scripts/functions
+# Begin real processing below this line
+export MAC_ADDRESS="$(cut /sys/class/net/eth0/address -d: -f1-6 -O)"
+export BS=$((10*1024*1024))
+export ZSTD_COMP_LEVEL=9
+
+find_trigger()
+{
+  if [[ -e "/dev/disk/by-label/WP360SAVE" ]] ; then
+    echo "save"
+  elif [[ -e "/dev/disk/by-label/WP360RECVINT" ]] || grep -q "wp360-restore" /proc/cmdline ; then
+    echo "factory_restore"
+  elif [[ -e "/dev/disk/by-label/WP360RECV" ]] ; then
+    echo "recover"
+  elif grep -q "wp360-factory-backup" /proc/cmdline ; then
+    echo "factory_backup"
+  fi
+  return 0
+}
+
+wp360_save()
+{
+  # Return codes:
+  # 1: wrong argument (how?)
+  # 2: couldn't create or mount target fs for image storage
+  # 3: couldn't move previous image, or remove even older image
+  # 4: couldn't add cmdline argument to reexpand the filesystem
+  # 5: fsck couldn't run, fsck couldn't fix, or resize2fs failed
+  # 6: couldn't read mmcblk0, or couldn't write the archive on target fs
+  case "$1" in
+    internal)
+      TARGET=/dev/disk/by-label/WP360IntRecovery
+      if [[ ! -e "$TARGET" ]] ; then
+        # Should necessarily be /dev/mmcblk0p4
+        mke2fs -t ext4 -L "WP360IntRecovery" || exit 2
+      fi
+      ;;
+    external)
+      TARGET=/dev/disk/by-label/WP360SAVE
+      ;;
+    *)
+      exit 1
+      ;;
+  esac
+
+  mkdir /mnt /mnt/target /mnt/boot
+  
+  mount "$TARGET" /mnt/target || exit 2
+  
+  if [[ -e "/mnt/target/WP360_${MAC_ADDRESS}.img.zst" ]] ; then
+    if [[ -e "/mnt/target/WP360_${MAC_ADDRESS}.old.img.zst" ]] ; then
+      rm "/mnt/target/WP360_${MAC_ADDRESS}.old.img.zst" || exit 3
+    fi
+    mv "/mnt/target/WP360_${MAC_ADDRESS}.img.zst" "/mnt/target/WP360_${MAC_ADDRESS}.old.img.zst" || exit 3
+  fi
+  
+  mount /dev/disk/by-label/bootfs /mnt/boot || exit 4
+  sed -i 's/$/ resize-part-on-boot/' /mnt/boot/cmdline.txt || exit 4
+  sync
+  umount /mnt/boot || exit 4
+
+  e2fsck -f /dev/disk/by-label/rootfs
+  [[ $? -lt 4 ]] || exit 5
+  resize2fs -f -M /dev/disk/by-label/rootfs || exit 5
+  ROOT_PART_START=$(parted /dev/mmcblk0 unit B p | awk '/^ 2/ {print substr($3, 1, length($3)-1)}')
+  ROOT_FS_SIZE=$(dumpe2fs -h /dev/disk/by-label/rootfs |& awk -F: '/Block count/{count=$2} /Block size/{size=$2} END{print count*size}')
+  IMG_SIZE_COUNT=$(( (ROOT_PART_START + ROOT_FS_SIZE + BS * 10) / BS ))
+  dd if=/dev/mmcblk0 bs=$BS count=$IMG_SIZE_COUNT | zstd -$ZSTD_COMP_LEVEL -o /mnt/target/WP360_${MAC_ADDRESS}.img.zst || exit 6
+  sync
+  umount /mnt/target
+}
+
+case "$(find_trigger)" in
+  save)
+    wp360_save external
+    ;;
+  factory_backup)
+    wp360_save internal
+    ;;
+  recover)
+    wp360_restore external
+    ;;
+  factory_restore)
+    wp360_restore internal
+    ;;
+  *)
+    exit 0
+    ;;
+esac

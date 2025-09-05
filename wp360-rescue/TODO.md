@@ -1,25 +1,40 @@
-# wp360-rescue
-This package should allow a partial (if only some were lost) or full (= after reimaging) recovery of factory settings and all device-specific information and/or identifiers.
+# WP360-rescue
+ - if /dev/disk/by-label/WP360-{SAVE,RESTORE,RECOVER} exist,
+ - or grep wp360-(restore|backup) /proc/cmdline, then:
+ - MAC="$(cut /sys/class/net/eth0/address -d: -f1-6 -O)"
+ - run the corresponding section:
+## WP360-{save,backup}
+ ### Prerequisite binaries
+ - zstd (compression)
+ - dd
+ - e2fsck
+ - resize2fs
+ - dumpe2fs
+ - awk
+ - cut
+ ### Order of operations
+ - mkdir /mnt /mnt/target /mnt/boot
+ - mount /dev/disk/by-label/WP360-{SAVE,INTERNAL-RECOVERY} /mnt/target
+ - if exists /mnt/${MAC}.img.zst then goto umount end
+ - mount /dev/disk/by-label/bootfs /mnt/boot
+ - sed -i s/$/ resize-part-on-boot/ /mnt/boot/cmdline.txt
+ - umount /mnt/boot
+ - e2fsck -f /dev/disk/by-label/rootfs
+ - && resize2fs -f -M /dev/disk/by-label/rootfs
+ - parted /dev/mmcblk0 unit B p | awk (partition 2 start)
+ - add ext4 size (round up) using dumpe2fs | awk
+ - round up to $BS
+ - dd if=/dev/mmcblk0 bs=$BS count=$((BYTES/BS)) | zstd -${COMPLEVEL}(9?) -o /mnt/target/${MAC}.img.zst
+ - sync
+ - umount /mnt/target
 
-
-## Files and folders
-- /etc/codesyscontrol
-- /etc/codesysedge
-- /etc/\{.,\}fstab
-- /etc/machine-id
-- /etc/ssh/ssh\_host\_\* 
-- /etc/wibu
-- /var/lib/CodeMeter
-- /var/log/CodeMeter
-- /var/opt/codesys
-- /var/opt/codesysedge
-
-## Other stuff
-Of course, if that was all, this would all be simple and little more than a tar / rm oneliner. Unfortunately, the disk identifier might also be needed (though I'll need to run more tests on that).
-
-Turns out, the disk identifier is needed. I'll now need to see what of the above is needed, as well.
-
-## Certainly needed
-- /etc/\{.,\}fstab
-- /boot/firmware/cmdline.txt
-- MBR disk identifier
+## WP360-{restore,recover}
+ ### Prerequisite binaries
+ - zstd (decompression)
+ - dd
+ ### Order of operations
+ - mkdir /mnt
+ - mount /dev/disk/by-label/WP360-{INTERNAL-RECOVERY,RECOVER}
+ - if not exists /mnt/${MAC}.img.zst then goto unmount end #how?
+ - zstd -d -k /mnt/${MAC}.img.zst | dd conv=sparse bs=$BS of=/dev/mmcblk0
+ - umount /mnt

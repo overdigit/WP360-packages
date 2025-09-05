@@ -1,0 +1,20 @@
+#!/bin/sh
+PREREQ=""
+COPY_EXEC_NAMES="zstd dd e2fsck resize2fs dumpe2fs awk cut mke2fs gpioset"
+prereqs()
+{
+echo "$PREREQ"
+}
+case $1 in
+prereqs)
+  prereqs
+  exit 0
+;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+# Begin real processing below this line
+force_load gpio_keys
+for EXEC in $COPY_EXEC_NAMES ; do
+  copy_exec $(which $EXEC)
+done
