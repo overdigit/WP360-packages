@@ -83,6 +83,7 @@ wp360_save()
   umount /mnt/target
 }
 
+# TODO: start blinking 0.5hz 50%dc
 case "$(find_trigger)" in
   save)
     wp360_save external
@@ -98,5 +99,6 @@ case "$(find_trigger)" in
     ;;
   *)
     exit 0
-    ;;
+    ;; 
 esac
+# TODO: blink error code or light up, then hang forever
