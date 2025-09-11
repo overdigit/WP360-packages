@@ -3,13 +3,14 @@ screen -t htop 0 htop
 
 screen -t clock 1 bash -c "/usr/lib/wp360-test-tools/clock.sh | lua /usr/lib/wp360-test-tools/avg.lua"
 
-screen -t graph 2 bash -c "/usr/lib/wp360-test-tools/clock.sh | lua /usr/lib/wp360-test-tools/graph.lua"
+#screen -t graph 2 bash -c "/usr/lib/wp360-test-tools/clock.sh | lua /usr/lib/wp360-test-tools/graph.lua"
 
 split -v
-split -v
+resize 82%
+#split -v
 select 0
 focus
 select 1
-focus
-select 2
+#focus
+#select 2
 startup_message off
