@@ -205,7 +205,8 @@ wp360_grow_fs()
 
 blink_led 0 &
 pid=$!
-case "$(find_trigger)" in
+TRIGGER="$(find_trigger)"
+case "$TRIGGER" in
   save)
     wp360_save external
     ;;
@@ -235,6 +236,7 @@ set_run_led off
 sleep 1
 case $ret in
   0)
+    [[ "$TRIGGER" == "grow_fs" ]] reboot -f
     while true
     do
       set_run_led on
