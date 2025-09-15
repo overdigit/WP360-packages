@@ -186,18 +186,18 @@ wp360_restore()
 wp360_grow_fs()
 {
   # Return codes:
-  # 4: couldn't remove cmdline argument to grow fs
-  # 5: fsck couldn't run, fsck couldn't fix, or resize2fs failed (corrupted flash / root filesystem?)
+  # 7: couldn't remove cmdline argument to grow fs
+  # 8: fsck couldn't run, fsck couldn't fix, or resize2fs failed (corrupted flash / root filesystem?)
 
   shutdown_guard
   mkdir /mnt /mnt/boot
-  mount /dev/disk/by-label/bootfs /mnt/boot || return 4
-  sed -i 's/ wp360-grow-fs//' /mnt/boot/cmdline.txt || return 4
+  mount /dev/disk/by-label/bootfs /mnt/boot || return 7
+  sed -i 's/ wp360-grow-fs//' /mnt/boot/cmdline.txt || return 7
   sync
-  umount /mnt/boot || return 4
+  umount /mnt/boot || return 7
   e2fsck -f /dev/disk/by-label/rootfs
-  [[ $? -lt 4 ]] || return 5
-  resize2fs -f -M /dev/disk/by-label/rootfs || return 5
+  [[ $? -lt 4 ]] || return 8
+  resize2fs -f /dev/disk/by-label/rootfs || return 8
 
   return 0
 }
