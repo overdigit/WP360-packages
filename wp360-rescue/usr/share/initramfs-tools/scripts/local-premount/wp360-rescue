@@ -15,7 +15,7 @@ esac
 # Begin real processing below this line
 export MAC_ADDRESS="$(cut /sys/class/net/eth0/address -d: -f1-6 -O '')"
 export BS=$((10*1024*1024))
-export ZSTD_COMP_LEVEL=9
+export ZSTD_COMP_LEVEL=3
 
 
 shutdown_guard()
