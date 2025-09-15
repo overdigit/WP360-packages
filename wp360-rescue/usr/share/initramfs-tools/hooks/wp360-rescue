@@ -1,6 +1,6 @@
 #!/bin/sh
 PREREQ=""
-COPY_EXEC_NAMES="zstd dd e2fsck resize2fs dumpe2fs awk mke2fs gpioset"
+COPY_EXEC_NAMES="zstd dd e2fsck resize2fs dumpe2fs mke2fs gpioset"
 prereqs()
 {
 echo "$PREREQ"
