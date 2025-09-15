@@ -140,7 +140,7 @@ wp360_save()
   e2fsck -f /dev/disk/by-label/rootfs
   [[ $? -lt 4 ]] || return 5
   resize2fs -f -M /dev/disk/by-label/rootfs || return 5
-  ROOT_PART_START=$(parted /dev/mmcblk0 unit B p | awk '/^ 2/ {print substr($3, 1, length($3)-1)}')
+  ROOT_PART_START=$(( $(cat /sys/block/mmcblk0/mmcblk0p2/start) *512))
   ROOT_FS_SIZE=$(dumpe2fs -h /dev/disk/by-label/rootfs |& awk -F: '/Block count/{count=$2} /Block size/{size=$2} END{print count*size}')
   IMG_SIZE_COUNT=$(( (ROOT_PART_START + ROOT_FS_SIZE + BS * 10) / BS ))
   dd if=/dev/mmcblk0 bs=$BS count=$IMG_SIZE_COUNT | zstd -$ZSTD_COMP_LEVEL -o /mnt/target/WP360_${MAC_ADDRESS}.img.zst || return 6
