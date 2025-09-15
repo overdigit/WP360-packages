@@ -28,7 +28,14 @@ shutdown_guard()
 
 set_run_led()
 {
-  gpioset --bias=pull-up --drive=open-drain gpiochip0 17=$1
+  case "$1" in
+    on)
+      gpioset --bias=pull-up --drive=open-drain gpiochip0 17=0
+      ;;
+    off)
+      gpioset --bias=pull-up --drive=open-drain gpiochip0 17=1
+      ;;
+  esac
 }
 
 
@@ -54,9 +61,9 @@ blink_led()
   do
     for i in $(seq 1 $steps)
     do
-      set_run_led 0
+      set_run_led on
       sleep $blink
-      set_run_led 1
+      set_run_led off
       sleep $blink
     done
     sleep $waiting
@@ -191,23 +198,23 @@ case "$(find_trigger)" in
     ;;
   *)
     kill $pid
-    set_run_led 1
+    set_run_led off
     exit 0
     ;; 
 esac
 
 ret=$?
 kill $pid
-set_run_led 1
+set_run_led off
 
 sleep 1
 case $ret in
   0)
     while true
     do
-      set_run_led 0
+      set_run_led on
       sleep 1
-      set_run_led 1
+      set_run_led off
       sleep 0.2
     done
     ;;
