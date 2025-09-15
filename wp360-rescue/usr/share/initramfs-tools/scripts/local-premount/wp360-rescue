@@ -81,6 +81,8 @@ find_trigger()
     echo "recover"
   elif grep -q "wp360-factory-backup" /proc/cmdline ; then
     echo "factory_backup"
+  elif grep -q "wp360-grow-fs" /proc/cmdline ; then
+    echo "grow_fs"
   fi
   return 0
 }
@@ -126,7 +128,7 @@ wp360_save()
   fi
   
   mount /dev/disk/by-label/bootfs /mnt/boot || return 4
-  sed -i 's/$/ resize-fs-on-boot/' /mnt/boot/cmdline.txt || return 4
+  sed -i 's/$/ wp360-grow-fs/' /mnt/boot/cmdline.txt || return 4
   case "$1" in
     internal)
       sed -i 's/wp360-factory-backup//' /mnt/boot/cmdline.txt || return 4
@@ -181,6 +183,26 @@ wp360_restore()
 }
 
 
+wp360_grow_fs()
+{
+  # Return codes:
+  # 4: couldn't remove cmdline argument to grow fs
+  # 5: fsck couldn't run, fsck couldn't fix, or resize2fs failed (corrupted flash / root filesystem?)
+
+  shutdown_guard
+  mkdir /mnt /mnt/boot
+  mount /dev/disk/by-label/bootfs /mnt/boot || return 4
+  sed -i 's/ wp360-grow-fs//' /mnt/boot/cmdline.txt || return 4
+  sync
+  umount /mnt/boot || return 4
+  e2fsck -f /dev/disk/by-label/rootfs
+  [[ $? -lt 4 ]] || return 5
+  resize2fs -f -M /dev/disk/by-label/rootfs || return 5
+
+  return 0
+}
+
+
 blink_led 0 &
 pid=$!
 case "$(find_trigger)" in
@@ -195,6 +217,9 @@ case "$(find_trigger)" in
     ;;
   factory_restore)
     wp360_restore internal
+    ;;
+  grow_fs)
+    wp360_grow_fs
     ;;
   *)
     kill $pid
