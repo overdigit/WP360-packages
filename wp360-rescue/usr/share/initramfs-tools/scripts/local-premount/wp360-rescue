@@ -26,6 +26,17 @@ shutdown_guard()
 }
 
 
+poweroff_ready()
+{
+  while true
+  do
+    [[ $(gpioget gpiochip0 22) == "0" ]] && break
+    sleep 0.05
+  done
+  pinctrl set 23 op dh
+}
+
+
 set_run_led()
 {
   case "$1" in
@@ -73,16 +84,45 @@ blink_led()
 
 find_trigger()
 {
-  if [[ -e "/dev/disk/by-label/WP360SAVE" ]] ; then
-    echo "save"
-  elif [[ -e "/dev/disk/by-label/WP360RECVINT" ]] || grep -q "wp360-restore" /proc/cmdline ; then
-    echo "factory_restore"
-  elif [[ -e "/dev/disk/by-label/WP360RECV" ]] ; then
-    echo "recover"
-  elif grep -q "wp360-factory-backup" /proc/cmdline ; then
+  if grep -q "wp360-factory-backup" /proc/cmdline
+  then
     echo "factory_backup"
-  elif grep -q "wp360-grow-fs" /proc/cmdline ; then
+    return 0
+  elif grep -q "wp360-restore" /proc/cmdline
+  then
+    echo "factory_restore"
+    return 0
+  elif grep -q "wp360-grow-fs" /proc/cmdline
+  then
     echo "grow_fs"
+    return 0
+  fi
+
+  [[ $(gpioget gpiochip0 6) == "1" ]] && return 0
+
+  local labels="WP360SAVE WP360FCTORY WP360RECV"
+  for i in $(seq 1 10)
+  do
+    wait_for_udev 10
+    for label in $labels
+    do
+      if [[ -b "/dev/disk/by-label/$label" ]]
+      then
+        break
+      fi
+    done
+    sleep 1
+  done
+  wait_for_udev 10
+  if [[ -b "/dev/disk/by-label/WP360SAVE" ]]
+  then
+    echo "save"
+  elif [[ -b "/dev/disk/by-label/WP360FCTORY" ]]
+  then
+    echo "factory_restore"
+  elif [[ -b "/dev/disk/by-label/WP360RECV" ]]
+  then
+    echo "recover"
   fi
   return 0
 }
@@ -97,12 +137,12 @@ wp360_save()
   # 4: couldn't add cmdline argument to reexpand the filesystem (corrupted flash?)
   # 5: fsck couldn't run, fsck couldn't fix, or resize2fs failed (corrupted flash / root filesystem?)
   # 6: couldn't read mmcblk0, or couldn't write the archive on target fs (image is bigger than the free space available?)
-  
   shutdown_guard
   case "$1" in
     internal)
       TARGET=/dev/disk/by-label/WP360IntRecovery
-      if ! [[ -e "$TARGET" ]] ; then
+      if ! [[ -b "$TARGET" ]]
+      then
         # Should necessarily be /dev/mmcblk0p4
         TARGET=/dev/mmcblk0p4
         mke2fs -q -t ext4 -L "WP360IntRecovery" $TARGET || return 2
@@ -120,8 +160,10 @@ wp360_save()
   
   mount "$TARGET" /mnt/target || return 2
   
-  if [[ -e "/mnt/target/WP360_${MAC_ADDRESS}.img.zst" ]] ; then
-    if [[ -e "/mnt/target/WP360_${MAC_ADDRESS}.old.img.zst" ]] ; then
+  if [[ -e "/mnt/target/WP360_${MAC_ADDRESS}.img.zst" ]]
+  then
+    if [[ -e "/mnt/target/WP360_${MAC_ADDRESS}.old.img.zst" ]]
+    then
       rm "/mnt/target/WP360_${MAC_ADDRESS}.old.img.zst" || return 3
     fi
     mv "/mnt/target/WP360_${MAC_ADDRESS}.img.zst" "/mnt/target/WP360_${MAC_ADDRESS}.old.img.zst" || return 3
@@ -143,7 +185,7 @@ wp360_save()
   ROOT_PART_START=$(( $(cat /sys/block/mmcblk0/mmcblk0p2/start) *512))
   ROOT_FS_SIZE=$(dumpe2fs -h /dev/disk/by-label/rootfs 2>/dev/null | awk -F: '/Block count/{count=$2} /Block size/{size=$2} END{print count*size}')
   IMG_SIZE_COUNT=$(( (ROOT_PART_START + ROOT_FS_SIZE + BS * 10) / BS ))
-  dd if=/dev/mmcblk0 bs=$BS count=$IMG_SIZE_COUNT | zstd -$ZSTD_COMP_LEVEL -o /mnt/target/WP360_${MAC_ADDRESS}.img.zst || return 6
+  dd if=/dev/mmcblk0 bs=$BS count=$IMG_SIZE_COUNT | zstd -q -$ZSTD_COMP_LEVEL -o /mnt/target/WP360_${MAC_ADDRESS}.img.zst || return 6
   sync
   umount /mnt/target
   return 0
@@ -176,7 +218,7 @@ wp360_restore()
 
   [[ -e "/mnt/target/WP360_${MAC_ADDRESS}.img.zst" ]] || return 3
 
-  zstd -k -d "/mnt/target/WP360_${MAC_ADDRESS}.img.zst" | dd of=/dev/mmcblk0 bs=$BS oflag=dsync conv=sparse || return 6
+  zstd -c -d "/mnt/target/WP360_${MAC_ADDRESS}.img.zst" | dd of=/dev/mmcblk0 bs=$BS oflag=dsync conv=sparse || return 6
   sync
   umount /mnt/target
   return 0
@@ -206,6 +248,7 @@ wp360_grow_fs()
 blink_led 0 &
 pid=$!
 TRIGGER="$(find_trigger)"
+[[ "$TRIGGER" == "" ]] || begin_log_msg "WP360_$TRIGGER"
 case "$TRIGGER" in
   save)
     wp360_save external
@@ -220,7 +263,7 @@ case "$TRIGGER" in
     wp360_restore internal
     ;;
   grow_fs)
-    wp360_grow_fs
+    wp360_grow_fs && reboot -f
     ;;
   *)
     kill $pid
@@ -234,9 +277,10 @@ kill $pid
 set_run_led off
 
 sleep 1
+poweroff_ready &
 case $ret in
   0)
-    [[ "$TRIGGER" == "grow_fs" ]] reboot -f
+    log_success_msg "WP360_$TRIGGER"
     while true
     do
       set_run_led on
@@ -246,6 +290,7 @@ case $ret in
     done
     ;;
   1|2|3|4|5|6|7|8|9)
+    log_failure_msg "WP360_$TRIGGER"
     blink_led $ret
     ;;
   *)
