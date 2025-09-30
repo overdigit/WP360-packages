@@ -15,6 +15,7 @@ esac
 . /usr/share/initramfs-tools/hook-functions
 # Begin real processing below this line
 force_load gpio_keys
+manual_add_modules exfat
 for EXEC in $COPY_EXEC_NAMES ; do
   copy_exec $(which $EXEC)
 done

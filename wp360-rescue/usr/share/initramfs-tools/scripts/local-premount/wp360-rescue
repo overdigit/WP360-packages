@@ -99,7 +99,7 @@ find_trigger()
   fi
 
   [[ $(gpioget gpiochip0 6) == "1" ]] && return 0
-
+  modprobe exfat
   local labels="WP360SAVE WP360FCTORY WP360RECV"
   for i in $(seq 1 10)
   do
