@@ -1,0 +1,3 @@
+#!/usr/bin/dh-exec --with-scripts=filter-arch
+usr/share/initramfs-tools/hooks/wp360-rescue
+usr/share/initramfs-tools/scripts/local-premount/wp360-rescue

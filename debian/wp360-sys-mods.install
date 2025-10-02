@@ -1,0 +1,2 @@
+#!/usr/bin/dh-exec --with-scripts=filter-arch
+usr/share/initramfs-tools/scripts/init-premount/wp360-firstboot

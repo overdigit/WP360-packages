@@ -1,0 +1,8 @@
+#!/usr/bin/dh-exec --with-scripts=filter-arch
+etc/sway/config.d/51-systemd-user-target.conf
+usr/lib/systemd/system/codesyscontrol.service.d/10-codesys-user-target.conf
+usr/lib/systemd/system/getty@tty1.service.d/autologin.conf
+usr/lib/systemd/user/codesys.target
+usr/lib/systemd/user/sway.service
+usr/lib/systemd/user/sway-session.target
+usr/lib/systemd/user/webvisu.service

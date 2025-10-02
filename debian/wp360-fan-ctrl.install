@@ -1,0 +1,4 @@
+#!/usr/bin/dh-exec
+usr/bin/wp360-fan-ctrl
+usr/lib/wp360-fan-ctrl/wp360-fan-ctrl-debug
+usr/lib/systemd/system/wp360-fan-ctrl.service

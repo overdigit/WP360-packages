@@ -1,0 +1,4 @@
+#!/usr/bin/dh-exec --with-scripts=filter-arch
+etc/udiskie.yml
+usr/share/polkit-1/rules.d/50-udiskie.rules
+usr/lib/systemd/system/wp360-udiskie.service

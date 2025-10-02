@@ -1,0 +1,79 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: wp360-packages
+Upstream-Contact: <preferred name and address to reach the upstream project>
+Source: <url://example.com>
+#
+# Please double check copyright with the licensecheck(1) command.
+
+Files:     .gitignore
+           Makefile
+           wp360-fan-ctrl/DEBIAN/control
+           wp360-fan-ctrl/DEBIAN/postinst
+           wp360-fan-ctrl/DEBIAN/prerm
+           wp360-fan-ctrl/Makefile
+           wp360-fan-ctrl/usr/bin/wp360-fan-ctrl
+           wp360-fan-ctrl/usr/lib/systemd/system/wp360-fan-ctrl.service
+           wp360-fan-ctrl/usr/lib/wp360-fan-ctrl/wp360-fan-ctrl-debug
+           wp360-fan-ctrl/usr/src/wp360-fan-ctrl/CMakeLists.txt
+           wp360-fan-ctrl/usr/src/wp360-fan-ctrl/Fan1.c
+           wp360-fan-ctrl/wp360-fan-ctrl
+           wp360-fan-ctrl/wp360-fan-ctrl-debug
+           wp360-rescue/DEBIAN/control
+           wp360-rescue/DEBIAN/postinst
+           wp360-rescue/DEBIAN/postrm
+           wp360-rescue/Makefile
+           wp360-rescue/usr/share/initramfs-tools/hooks/wp360-rescue
+           wp360-rescue/usr/share/initramfs-tools/scripts/local-premount/wp360-rescue
+           wp360-serial-map/DEBIAN/control
+           wp360-serial-map/DEBIAN/postinst
+           wp360-serial-map/DEBIAN/prerm
+           wp360-serial-map/Makefile
+           wp360-serial-map/usr/lib/systemd/system/wp360-serial-map.service
+           wp360-serial-map/usr/lib/udev/rules.d/99-serial.rules
+           wp360-serial-map/usr/lib/wp360-serial-map/wp360-set-rs485
+           wp360-serial-map/usr/src/wp360-serial-map/test.c
+           wp360-serial-map/wp360-set-rs485
+           wp360-sys-mods/DEBIAN/control
+           wp360-sys-mods/DEBIAN/postinst
+           wp360-sys-mods/DEBIAN/postrm
+           wp360-sys-mods/Makefile
+           wp360-sys-mods/usr/share/initramfs-tools/scripts/init-premount/wp360-firstboot
+           wp360-test-tools/DEBIAN/control
+           wp360-test-tools/Makefile
+           wp360-test-tools/usr/lib/wp360-test-tools/avg.lua
+           wp360-test-tools/usr/lib/wp360-test-tools/clock.sh
+           wp360-test-tools/usr/lib/wp360-test-tools/graph.lua
+           wp360-test-tools/usr/lib/wp360-test-tools/run.screen
+           wp360-test-tools/usr/lib/wp360-test-tools/run.sh
+           wp360-udiskie/DEBIAN/control
+           wp360-udiskie/DEBIAN/postinst
+           wp360-udiskie/DEBIAN/prerm
+           wp360-udiskie/Makefile
+           wp360-udiskie/etc/udiskie.yml
+           wp360-udiskie/usr/lib/systemd/system/wp360-udiskie.service
+           wp360-udiskie/usr/share/polkit-1/rules.d/50-udiskie.rules
+           wp360-ups-ctrl/DEBIAN/control
+           wp360-ups-ctrl/DEBIAN/postinst
+           wp360-ups-ctrl/DEBIAN/postrm
+           wp360-ups-ctrl/DEBIAN/prerm
+           wp360-ups-ctrl/Makefile
+           wp360-ups-ctrl/usr/lib/systemd/system/codesyscontrol.service.d/gpio24.conf
+           wp360-ups-ctrl/usr/lib/systemd/system/wp360-ups-ctrl.service
+           wp360-ups-ctrl/usr/sbin/wp360-ups-ctrl
+           wp360-ups-ctrl/usr/share/initramfs-tools/hooks/gpio
+           wp360-ups-ctrl/usr/share/initramfs-tools/scripts/init-bottom/gpio-poweron
+           wp360-webvisu/DEBIAN/control
+           wp360-webvisu/Makefile
+           wp360-webvisu/etc/sway/config.d/51-systemd-user-target.conf
+           wp360-webvisu/usr/lib/systemd/system/codesyscontrol.service.d/10-codesys-user-target.conf
+           wp360-webvisu/usr/lib/systemd/system/getty@tty1.service.d/autologin.conf
+           wp360-webvisu/usr/lib/systemd/user/codesys.target
+           wp360-webvisu/usr/lib/systemd/user/sway-session.target
+           wp360-webvisu/usr/lib/systemd/user/sway.service
+           wp360-webvisu/usr/lib/systemd/user/webvisu.service
+Copyright: __NO_COPYRIGHT_NOR_LICENSE__
+License:   __NO_COPYRIGHT_NOR_LICENSE__
+
+#----------------------------------------------------------------------------
+# Files marked as NO_LICENSE_TEXT_FOUND may be covered by the following
+# license/copyright files.

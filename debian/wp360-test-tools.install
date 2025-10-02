@@ -1,0 +1,6 @@
+#!/usr/bin/dh-exec --with-scripts=filter-arch
+usr/lib/wp360-test-tools/avg.lua
+usr/lib/wp360-test-tools/clock.sh
+usr/lib/wp360-test-tools/graph.lua
+usr/lib/wp360-test-tools/run.screen
+usr/lib/wp360-test-tools/run.sh

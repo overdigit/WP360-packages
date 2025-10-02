@@ -1,0 +1,4 @@
+#!/usr/bin/dh-exec --with-scripts=filter-arch
+usr/lib/wp360-serial-map/wp360-set-rs485
+usr/lib/systemd/system/wp360-serial-map.service
+usr/lib/udev/rules.d/99-serial.rules

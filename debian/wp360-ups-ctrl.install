@@ -1,0 +1,6 @@
+#!/usr/bin/dh-exec --with-scripts=filter-arch
+usr/lib/systemd/system/wp360-ups-ctrl.service
+usr/lib/systemd/system/codesyscontrol.service.d/gpio24.conf
+usr/sbin/wp360-ups-ctrl
+usr/share/initramfs-tools/hooks/gpio
+usr/share/initramfs-tools/scripts/init-bottom/gpio-poweron
