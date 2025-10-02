@@ -1,4 +1,4 @@
-prefix = /usr/local
+prefix = /usr
 
 all: wp360-fan-ctrl wp360-fan-ctrl-debug
 

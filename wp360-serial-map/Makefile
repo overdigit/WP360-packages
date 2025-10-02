@@ -1,4 +1,4 @@
-prefix = /usr/local
+prefix = /usr
 
 all: wp360-set-rs485
 
