@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-while true
-do
-  state_22=$(gpioget --bias=pull-up gpiochip4 22) || exit 1
-  if [[ $state_22 == "0" ]] ; then
-    break
-  fi
-  sleep 0.05s
-done
+gpiomon -n 1 -f gpiochip0 22 | grep -q 'event: FALLING EDGE' && shutdown now
+exit 1
 
-shutdown now
